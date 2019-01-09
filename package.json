@@ -21,6 +21,8 @@
   "homepage": "https://github.com/cccnqu/ws107a#readme",
   "dependencies": {
     "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "express-generator": "^4.16.0",
     "kdd": "^1.1.0",
     "koa": "^2.5.3",
     "koa-body": "^4.0.4",
@@ -34,6 +36,7 @@
     "koa-views": "^6.1.4",
     "lodash": "^4.17.11",
     "should": "^3.3.2",
+    "socket.io": "^2.1.1",
     "supertest": "^3.3.0"
   }
 }

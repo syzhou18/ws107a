@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  div(class="container")
+    div(class="col-md-4 offset-md-4")
+      h1(class="text-center login-title") Sign Up
+      div(class="card")
+        div(class="card-blcok")
+          form(action="/signup" method="post")
+            input(type="text" name="username" class="form-control" placeholder="Email" required="true" autofocus)
+            input(type="password" name="password" class="form-control" placeholder="Password" required="true")
+            button(class="btn btn-primary btn-block" type="submit") Sign In
+            span(class="clearfix")
+            if message.length
+              div(id="message")
+                  div(class="alert alert-danger text-center") #{message}

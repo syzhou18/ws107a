@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+body, html{
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0;
+    background:url(http://www.oxxostudio.tw/firebase-webduino-im/bg2.jpg);
+    background-size:cover;
+    }
+#board{
+    position:relative;
+    margin:0 auto;
+    width:100%;
+    max-width:600px;
+    height:100%;
+    box-sizing:border-box;
+    background:rgba(0,0,0,.4);
+    }
+
+#input{
+      position:absolute;
+      z-index:2;
+      height:90px;
+      width:100%;
+      left:0;
+      bottom:0;
+      margin:0;
+      padding:15px;
+      box-sizing:border-box;
+      background:#222;
+      color:#fff;
+    }
+
+#input input, #input span{
+      display:inline-block;
+      margin:5px 16px;
+    }
+
+#input input{
+      width:75%;
+      border:none;
+      padding:5px;
+
+    }
+
+#input span{
+      width:10%;
+      min-width:50px;
+    }
+
+#input div{
+      width:80%;
+      float:left;
+    }
+
+#input button{
+      float:right;
+      height:90%;
+      width:20%;
+      margin:5px 0;
+      border:none;
+      padding:0;
+      background:#369;
+      font-size:16px;
+      color:#fff;
+    }
+
+#message_block{
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:1;
+    width:100%;
+    height:calc(100% - 90px);
+    overflow-y:scroll;
+    padding:20px;
+    box-sizing:border-box;
+    }
+
+#add div {
+    padding: 5px 10px; 
+    font-size:16pt;
+    background: #aaaaaa;
+  }
+
+table {
+  width: 100%;
+  background-color:rgba(0, 0, 0, 0);
+  }
+
+tr.align-left td > span {
+  float: left;
+  }
+
+tr.align-left td > span span {
+  display: inline-block;
+  font-size: 16pt;
+  color: whitesmoke;
+  }
+
+ tr.align-right td > span {
+  float: right;
+  }
+
+  tr.align-right td > span span {
+  display: inline-block;
+  font-size: 16pt;
+  color: whitesmoke;
+  }
+
+  </style>
+<script>
+  var socket = io();
+  $(document).ready(function(){
+  var name = prompt("請輸入暱稱","guest");
+
+  if(name==""||null){
+     name = "87";
+    }
+
+  socket.emit("add user",name);
+
+  //新成員
+  socket.on('add user',function(data){
+  appendMessage(data.username+"已加入");
+  });
+  //離開
+  socket.on('left user',function(data){
+  appendMessage(data.username+"已離開");
+  })
+
+  //新訊息
+ 
+  socket.on('chat message', function (data) {
+      console.log(data);
+      var p = document.createElement('tr');
+      var direct = 'align-left';
+      if (name===data.username) {
+          direct = 'align-right';
+          p.innerHTML = '<td><span><span >' + data.msg+":" + '</span> <span>' + name + '</span></td><span></span>';
+      } else {
+          p.innerHTML = '<td><span><span>' + data.username+":" + '</span>   <span>' + data.msg + '</span><span></span></td>';
+      }
+      p.className = direct;
+      $('#content').append(p);
+      var message = document.getElementById("message_block");
+      message.scrollTop = message.scrollHeight;
+  });
+
+  $('#send').click(function(){
+  var text = $('#b').val();
+  socket.emit('chat message', text);
+  $('#b').val('');
+  return false;
+  });
+
+
+  $('#b').keydown(function(event){
+    if (event.which == 13){
+      $('#send').click();
+    }
+  });
+
+  function appendMessage(msg){
+  $('#add').append($('<div>').text(msg));
+  var message = document.getElementById("message_block");
+  message.scrollTop = message.scrollHeight;
+  }
+
+
+})
+</script>
+</head>
+  <body>
+
+<div id="board">
+  <div id="input">
+    <div >
+      <span>內容：</span><input id="b"> 
+    </div>
+    <button id="send">Send</button>
+  </div>
+  <div id="message_block">
+      <div id="add" align="center"></div><br>
+      <div>
+          <table id="content" >
+          </table> 
+      </div>
+  </div>
+</div>
+  </body>
+</html>

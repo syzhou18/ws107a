@@ -15,6 +15,7 @@ router
   .get('/post/new', add)
   .get('/post/:id', show)
   .get('/edit/:id', edit)
+  .get('/delete/:id', remove)
   .post('/post', create)
   .post('/modify/:id', modify)
 
@@ -54,6 +55,13 @@ async function modify(ctx) {
   post.id = ctx.params.id
   M.modify(post)
   ctx.redirect('/')
+}
+
+async function remove (ctx) {
+  const id = ctx.params.id
+  const post = M.remove(id)
+  if (!post) ctx.throw(404, 'invalid post id')
+  ctx.redirect('/') 
 }
 
 

@@ -1,0 +1,31 @@
+doctype html
+html
+  head
+    title Welcome 
+    //加入bootstrap
+    link(href='/stylesheets/bootstrap.css', rel='stylesheet')
+    //加入css
+    //link(href='/stylesheets/style.css', rel='stylesheet')
+  body
+    //修改navbar樣式
+  nav.navbar.navbar-expand-lg.navbar-light.bg-light.navbar-right
+      a.navbar-brand(href='/') Chat
+        |   
+        button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarNavAltMarkup', aria-controls='navbarNavAltMarkup', aria-expanded='false', aria-label='Toggle navigation')
+          span.navbar-toggler-icon
+        |  
+        #navbarNavAltMarkup.collapse.navbar-collapse
+        
+          .navbar-nav 
+          
+            a.nav-item.nav-link.active(href='/users/login') login
+            |       
+            a.nav-item.nav-link(href='/users/register') register
+            |             
+            a.nav-item.nav-link(href='/users/login') logout
+      
+      .container
+  != messages()
+  block content
+  
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js')

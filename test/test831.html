@@ -1,0 +1,148 @@
+<?DOCTYPE html>
+ 
+<meta charset='utf-8'>
+
+<style>
+.container {
+    font-size: 12px;
+    border-radius: 10px;
+    border: solid 1px #336699;
+    padding: 15px 15px 15px 15px;
+    line-height: 20px;
+    width: 400px;
+
+}
+.disabled {
+    color: gray;
+}
+.enabled {
+    color: true;
+}
+</style>
+<script src='/socket.io/socket.io.js'></script>
+<script src='http://code.jquery.com/jquery-1.8.2.min.js'></script>
+<script>
+$(document).ready(function() {
+    var socket = io.connect();
+    var nickname = '';
+    var room = '';
+    var rooms = {};
+    $('#form1').submit(function(e) {
+        e.preventDefault();
+        socket.emit('setnickname', $('#nickname').val());
+    });
+    socket.on('nicknamesuccess', function(m) {
+        nickname = m;
+        $('#nickname').prop('disabled', true);
+        $('#sendnickname').prop('disabled', true);
+        $('#rooms').prop('disabled', false);
+        $('#msg').prop('disabled', false);
+        $('#send').prop('disabled', false);
+        $('#msglabel').prop('className', 'enabled');
+        $('#rooms').focus();
+    });
+    socket.on('nicknamefail', function(m) {
+        alert('Nickname conflict. Your nickname will be changed to "'+m+'"');
+        nickname = m;
+        $('#nickname').val(m);
+        $('#nickname').prop('disabled', true);
+        $('#sendnickname').prop('disabled', true);
+        $('#rooms').prop('disabled', false);
+        $('#msg').prop('disabled', false);
+        $('#send').prop('disabled', false);
+        $('#msglabel').prop('className', 'enabled');
+        $('#rooms').focus();
+    });
+    $('#form2').submit(function(e) {
+        e.preventDefault();
+        var m = $('#msg').val();
+        socket.emit('post', {nickname: nickname, msg: m});
+        $('#msg').val('');
+        updateMsg({nickname:nickname,msg:m});
+    })
+    socket.on('msg', function(m) {
+        updateMsg(m);
+    });
+    $('#rooms').bind('change', function() {
+        var value = $(this).val();
+        if(value!=='') {
+            socket.emit('leave');// 1
+            socket.emit('join', value);// 2
+            $('#msg').focus();
+        }
+    });
+// 4
+    socket.on('joinroomsuccess', function(m) {
+        if(room !== '') {
+            rooms[room] = $('#panel').val();
+            room = m.room;
+            if(typeof rooms[room] !== 'undefined') {
+                $('#panel').val(rooms[room]+'\n[old messages before you left this room...]');
+            } else {
+                $('#panel').val('');
+            }
+        } else {
+            room = m.room;
+        }
+    });
+// 6 
+    socket.on('system', function(m) {
+        updateMsg({nickname:'SYSTEM', msg:m});
+    });
+// 5 
+   socket.on('warning', function(m) {
+        alert(m);
+    });
+    define('/test831a.js', function(conf) {
+        var sel = $('#rooms');
+        var opt = document.createElement('option');
+        opt.value = '';
+        opt.innerHTML = '';
+        sel.append(opt);
+        for(var i in conf) {
+            var opt = document.createElement('option');
+            opt.value = i;
+            opt.innerHTML = i;
+            sel.append(opt);
+        }
+        opt = null;
+    });
+    $('#nickname').focus();
+
+    function updateMsg(msg) {
+        var ta = $("#panel");
+        var t = new Date();
+        var s = t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
+        var m = '[ ' + msg.nickname + ' (' + s + ')]: ' + msg.msg;
+        ta.val(ta.val()+'\n'+m);
+        setTimeout(function(){
+            ta.scrollTop(ta[0].scrollHeight - ta.innerHeight());
+        },10);
+    }
+    function define(url, cb) {
+        $.ajax({
+            url:url
+        })
+        .done(function(data) {
+            var f = new Function('var module={},exports=null;\n'+data+'\nif(typeof module.exports !== "undefined") {\nreturn module.exports;\n}\nif(null != exports) {\n return exports;\n}');
+            var exports = f();
+            if(typeof exports !== 'undefined') {
+                cb(exports);
+                return;
+            }
+        });
+    }
+});
+</script>
+
+
+<div class="container">
+    <textarea cols='54' rows='24' id='panel' readonly></textarea><br>
+    <form id='form1' name='form1'>
+        <label id='nicknamelabel' class='enabled'>Your Nickname: </label><input type='text' size='20' id='nickname'><input type='submit' value='send' id='sendnickname'>
+    </form>
+    <select id='rooms' disabled></select>
+    <form id='form2' name='form2'>
+        <label id='msglabel' class='disabled'>Message: </label><input type='text' size='54' id='msg' disabled><input type='submit' value='send' id='send' disabled>
+    </form>
+</div>

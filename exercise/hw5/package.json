@@ -4,10 +4,12 @@
   "description": "簡易網誌系統(經典 server 導向做法)",
   "main": "app.js",
   "dependencies": {
+    "express": "^4.16.4",
     "koa": "^2.5.3",
     "koa-body": "^4.0.4",
     "koa-logger": "^3.2.0",
-    "koa-router": "^7.4.0"
+    "koa-router": "^7.4.0",
+    "socket.io": "^2.1.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",

@@ -1,0 +1,69 @@
+extends layout
+
+block content
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
+    script(src='/../javascripts/app.js')
+    script(src='//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')
+    link(href='/stylesheets/style.css', rel='stylesheet')
+    script.
+      var socket = io();
+      $(document).ready(function(){
+      var name = prompt("請輸入暱稱","guest");
+      if(name==""||null){
+      name = "87";
+      }
+      socket.emit("add user",name);
+      //新成員
+      socket.on('add user',function(data){
+      appendMessage(data.username+"已加入");
+      });
+      //離開
+      socket.on('left user',function(data){
+      appendMessage(data.username+"已離開");
+      })
+      //新訊息
+      socket.on('chat message', function (data) {
+      console.log(data);
+      var p = document.createElement('tr');
+      var direct = 'align-left';
+      if (name===data.username) {
+      direct = 'align-right';
+      p.innerHTML = '<td><span><span >' + data.msg+":" + '</span> <span>' + name + '</span></td><span></span>';
+      } else {
+      p.innerHTML = '<td><span><span>' + data.username+":" + '</span>   <span>' + data.msg + '</span><span></span></td>';
+      }
+      p.className = direct;
+      $('#content').append(p);
+      var message = document.getElementById("message_block");
+      message.scrollTop = message.scrollHeight;
+      });
+      $('#send').click(function(){
+      var text = $('#b').val();
+      socket.emit('chat message', text);
+      $('#b').val('');
+      return false;
+      });
+      $('#b').keydown(function(event){
+      if (event.which == 13){
+      $('#send').click();
+      }
+      });
+      function appendMessage(msg){
+      $('#add').append($('<div>').text(msg));
+      var message = document.getElementById("message_block");
+      message.scrollTop = message.scrollHeight;
+      }
+      })
+  body
+    #board
+      #input
+        div
+          span 內容：
+          input#b
+        button#send Send
+      #message_block
+        #add(align='center')
+        br
+        div
+          table#content
